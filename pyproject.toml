@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gt3x-to-csv"
+description = "A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and converting them to CSV format"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "MIT"}
+authors = [
+    {name = "GT3X Converter Team"},
+]
+keywords = ["actigraphy", "accelerometer", "gt3x", "actilife", "csv", "research", "health"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "black",
+    "flake8",
+    "mypy",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/gt3x-to-csv"
+"Bug Reports" = "https://github.com/yourusername/gt3x-to-csv/issues"
+"Source" = "https://github.com/yourusername/gt3x-to-csv"
+Documentation = "https://github.com/yourusername/gt3x-to-csv/blob/main/README.md"
+
+[project.scripts]
+gt3x-to-csv = "gt3x_parser:main"
+
+[tool.setuptools]
+py-modules = ["gt3x_parser"]
+
+[tool.setuptools_scm]
+write_to = "_version.py"

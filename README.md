@@ -1,38 +1,72 @@
-# GT3X to CSV Converter (Python)
+# GT3X to CSV Converter
 
-A pure Python implementation for converting ActiGraph GT3X accelerometer files to CSV format. This tool provides a fast, dependency-free alternative to ActiLife software for extracting activity data from GT3X files.
+![Python](https://img.shields.io/badge/python-3.6+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-cross--platform-lightgrey.svg)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
 
-## Features
+A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and converting them to CSV format. This tool provides a dependency-free alternative to ActiLife software for extracting activity data from GT3X files.
 
-- **Zero Dependencies**: Uses only Python standard library
-- **ActiLife Compatible**: Generates CSV files that match ActiLife's output format
-- **High Performance**: Efficiently processes large GT3X files
-- **Multiple Formats**: Supports both ActiLife-style and simple timestamp formats
-- **Modern GT3X Support**: Handles both legacy and modern GT3X file formats
+## ⚡ Key Features
 
-## Quick Start
+- 🔧 **Zero Dependencies** - Uses only Python standard library
+- 📊 **Multiple CSV Formats** - ActiLife-compatible or simple timestamp format
+- 🚀 **High Performance** - Efficiently processes large GT3X files
+- ✅ **Data Validation** - Includes checksum verification
+- 🔍 **Multiple Sample Formats** - Supports 3, 6, and 9-byte activity samples
+- 📱 **Cross-Platform** - Works on Windows, macOS, and Linux
+- 🔬 **Research Ready** - Perfect for accelerometry research workflows
+
+## 🚀 Installation
+
+### Option 1: Direct Download
+```bash
+git clone https://github.com/yourusername/gt3x-to-csv.git
+cd gt3x-to-csv
+```
+
+### Option 2: Pip Install (Coming Soon)
+```bash
+pip install gt3x-to-csv
+```
+
+## 💻 Quick Start
 
 ### Command Line Usage
 ```bash
 python gt3x_parser.py input.gt3x output.csv
 ```
 
-### Programmatic Usage
+### Python API
 ```python
-from gt3x_parser import GT3XToCSV
+from gt3x_parser import GT3XParser, GT3XToCSV
 
+# Parse GT3X file
+parser = GT3XParser('data.gt3x')
+data = parser.parse()
+
+print(f"Device: {data['info']['Serial Number']}")
+print(f"Samples: {len(data['activity_samples'])}")
+
+# Convert to CSV
 converter = GT3XToCSV()
-converter.convert('input.gt3x', 'output.csv')  # ActiLife format
-converter.convert('input.gt3x', 'output.csv', actilife_format=False)  # Simple format
+
+# ActiLife format (default)
+converter.convert('data.gt3x', 'output_actilife.csv', actilife_format=True)
+
+# Simple timestamp format
+converter.convert('data.gt3x', 'output_simple.csv', actilife_format=False)
 ```
 
-## File Structure
+## 📁 Project Structure
 
 ```
-gt3x2csv/
+gt3x-to-csv/
 ├── gt3x_parser.py      # Main converter module
 ├── requirements.txt    # Dependencies (none required)
 ├── README.md          # This file
+├── LICENSE            # MIT license
+├── setup.py           # Package configuration
 └── examples/          # Examples and test files
     ├── test_file.gt3x        # Sample GT3X file
     ├── actilife_file.csv     # Reference ActiLife output
@@ -41,7 +75,7 @@ gt3x2csv/
     └── debug_gt3x.py         # GT3X file analyzer
 ```
 
-## Output Formats
+## 📊 Output Formats
 
 ### ActiLife Format (Default)
 Mimics ActiLife software output with header information and g-force values:
@@ -100,10 +134,86 @@ This Python implementation provides significant performance improvements over Ac
 - Memory efficient binary parsing
 - Suitable for batch processing large datasets
 
-## License
+## 📚 API Reference
 
-This is a Python port inspired by the [gt3x2csv R package](https://github.com/tarensanders/gt3x2csv) by Taren Sanders.
+### GT3XParser Class
+```python
+parser = GT3XParser(file_path)
+data = parser.parse()  # Returns {'info': dict, 'activity_samples': list}
+```
 
-## Contributing
+### GT3XToCSV Class
+```python
+converter = GT3XToCSV()
+converter.convert(gt3x_path, csv_path, actilife_format=True)
+```
 
-Feel free to submit issues, feature requests, or pull requests to improve this tool.
+### Data Structures
+```python
+@dataclass
+class ActivitySample:
+    x: int  # X-axis acceleration
+    y: int  # Y-axis acceleration  
+    z: int  # Z-axis acceleration
+
+@dataclass
+class GT3XRecord:
+    separator: int
+    record_type: int
+    timestamp: int
+    payload_size: int
+    payload: bytes
+    checksum: int
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**File not found error**
+```bash
+Error: Input file data.gt3x does not exist
+```
+Ensure the GT3X file path is correct and the file exists.
+
+**Checksum verification failed**
+```
+Checksum verification failed at offset 1234
+```
+The GT3X file may be corrupted. This warning doesn't stop processing but indicates data integrity issues.
+
+**Unknown activity payload format**
+```
+Unknown activity payload format, size: 7
+```
+The parser encountered an unsupported sample format. Please report this as an issue.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- ActiGraph for the GT3X file format specification
+- [gt3x2csv R package](https://github.com/tarensanders/gt3x2csv) by Taren Sanders for inspiration
+- The accelerometry research community
+
+## 🔗 Related Projects
+
+- [ActiGraph ActiLife](https://actigraphcorp.com/actilife-6/) - Official ActiGraph software
+- [GGIR](https://github.com/wadpac/GGIR) - R package for accelerometer data processing
+- [pygt3x](https://github.com/actigraph/pygt3x) - Official ActiGraph Python library
+
+---
+
+⭐ **Star this repo** if you find it useful!
+
+📫 **Issues and questions** are welcome in the [Issues](https://github.com/yourusername/gt3x-to-csv/issues) section.
