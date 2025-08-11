@@ -1,9 +1,12 @@
 # GT3X to CSV Converter
 
-![Python](https://img.shields.io/badge/python-3.6+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-cross--platform-lightgrey.svg)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
+![Pandas](https://img.shields.io/badge/pandas-supported-orange.svg)
+![Polars](https://img.shields.io/badge/polars-supported-red.svg)
+![uv](https://img.shields.io/badge/uv-compatible-purple.svg)
 
 A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and converting them to CSV format. This tool provides a dependency-free alternative to ActiLife software for extracting activity data from GT3X files.
 
@@ -19,15 +22,24 @@ A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and c
 
 ## 🚀 Installation
 
-### Option 1: Direct Download
+### Option 1: uv (Recommended)
 ```bash
 git clone https://github.com/yourusername/gt3x-to-csv.git
 cd gt3x-to-csv
+uv sync --extra test  # Installs with pandas/polars support
 ```
 
-### Option 2: Pip Install (Coming Soon)
+### Option 2: Direct Download
+```bash
+git clone https://github.com/yourusername/gt3x-to-csv.git
+cd gt3x-to-csv
+pip install -e .  # Installs without optional dependencies
+```
+
+### Option 3: Pip Install (Coming Soon)
 ```bash
 pip install gt3x-to-csv
+pip install gt3x-to-csv[test]  # With pandas/polars support
 ```
 
 ## 💻 Quick Start
@@ -35,13 +47,35 @@ pip install gt3x-to-csv
 ### Command Line Usage
 ```bash
 python gt3x_parser.py input.gt3x output.csv
+# Or with uv:
+uv run python gt3x_parser.py input.gt3x output.csv
 ```
 
-### Python API
+### Enhanced Python API (Recommended)
+```python
+from gt3x_parser import GT3XReader
+
+# Modern context manager API with DataFrame support
+with GT3XReader('data.gt3x') as reader:
+    # Access structured metadata
+    print(f"Device: {reader.device_info.serial_number}")
+    print(f"Sample Rate: {reader.device_info.sample_rate} Hz")
+    print(f"Total Samples: {reader.recording_info.total_samples}")
+    
+    # Get data in different formats
+    df = reader.to_pandas(calibrated=True)     # Pandas DataFrame (timestamped)
+    df_pl = reader.to_polars(calibrated=True)  # Polars DataFrame  
+    data = reader.to_dict(calibrated=True)     # Python dictionary
+    
+    # Access complete metadata
+    metadata = reader.metadata
+```
+
+### Legacy Python API (Still Supported)
 ```python
 from gt3x_parser import GT3XParser, GT3XToCSV
 
-# Parse GT3X file
+# Original API for backward compatibility
 parser = GT3XParser('data.gt3x')
 data = parser.parse()
 
@@ -50,12 +84,7 @@ print(f"Samples: {len(data['activity_samples'])}")
 
 # Convert to CSV
 converter = GT3XToCSV()
-
-# ActiLife format (default)
-converter.convert('data.gt3x', 'output_actilife.csv', actilife_format=True)
-
-# Simple timestamp format
-converter.convert('data.gt3x', 'output_simple.csv', actilife_format=False)
+converter.convert('data.gt3x', 'output.csv', actilife_format=True)
 ```
 
 ## 📁 Project Structure
@@ -107,9 +136,15 @@ This converter handles:
 - **Multiple sample formats** (6-byte, 9-byte, packed formats)
 - **Proper scaling** using device-specific scale factors
 
-## Testing
+## 🧪 Testing
 
-Run the test suite with the included sample file:
+Run the test suite with uv:
+```bash
+uv run python examples/test_parser.py
+uv run python examples/enhanced_api_demo.py  # Demo new features
+```
+
+Legacy testing:
 ```bash
 cd examples
 python test_parser.py
@@ -119,13 +154,23 @@ python example_usage.py
 Test with the sample GT3X file:
 ```bash
 cd examples
-python ../gt3x_parser.py test_file.gt3x output.csv
+uv run python ../gt3x_parser.py test_file.gt3x output.csv
 ```
 
-## Requirements
+## 📋 Requirements
 
-- Python 3.6+
+### Core Requirements
+- Python 3.8+
 - No external dependencies (uses only standard library)
+
+### Optional Dependencies (for enhanced features)
+- `pandas >= 2.0.3` - For DataFrame output with `.to_pandas()`
+- `polars >= 1.8.2` - For high-performance DataFrame output with `.to_polars()`
+
+Install with:
+```bash
+uv add pandas polars  # or pip install pandas polars
+```
 
 ## Performance
 
@@ -136,14 +181,31 @@ This Python implementation provides significant performance improvements over Ac
 
 ## 📚 API Reference
 
-### GT3XParser Class
+### Modern GT3XReader Class (Recommended)
 ```python
-parser = GT3XParser(file_path)
-data = parser.parse()  # Returns {'info': dict, 'activity_samples': list}
+# Context manager for resource management
+with GT3XReader(file_path) as reader:
+    # DataFrame outputs (requires pandas/polars)
+    df = reader.to_pandas(include_timestamps=True, calibrated=True)
+    df_pl = reader.to_polars(include_timestamps=True, calibrated=True)
+    
+    # Dictionary output (always available)
+    data = reader.to_dict(include_timestamps=True, calibrated=True)
+    
+    # Structured metadata access
+    device_info = reader.device_info      # DeviceInfo dataclass
+    recording_info = reader.recording_info  # RecordingInfo dataclass  
+    data_quality = reader.data_quality    # DataQuality dataclass
+    metadata = reader.metadata            # Complete dict
 ```
 
-### GT3XToCSV Class
+### Legacy Classes (Backward Compatible)
 ```python
+# Original parser
+parser = GT3XParser(file_path)
+data = parser.parse()  # Returns {'info': dict, 'activity_samples': list}
+
+# CSV converter
 converter = GT3XToCSV()
 converter.convert(gt3x_path, csv_path, actilife_format=True)
 ```
@@ -151,19 +213,25 @@ converter.convert(gt3x_path, csv_path, actilife_format=True)
 ### Data Structures
 ```python
 @dataclass
+class DeviceInfo:
+    serial_number: str
+    firmware_version: str
+    battery_voltage: str
+    sample_rate: float
+    acceleration_scale: float
+
+@dataclass
+class RecordingInfo:
+    start_time: Optional[datetime]
+    stop_time: Optional[datetime]
+    duration_hours: float
+    total_samples: int
+
+@dataclass
 class ActivitySample:
     x: int  # X-axis acceleration
     y: int  # Y-axis acceleration  
     z: int  # Z-axis acceleration
-
-@dataclass
-class GT3XRecord:
-    separator: int
-    record_type: int
-    timestamp: int
-    payload_size: int
-    payload: bytes
-    checksum: int
 ```
 
 ## 🔧 Troubleshooting
