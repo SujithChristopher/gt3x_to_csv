@@ -1,0 +1,9 @@
+# GT3X to CSV Converter - Python Implementation
+# 
+# This project has no external dependencies.
+# All required modules are part of Python's standard library:
+# - zipfile: For reading GT3X zip archives
+# - struct: For binary data parsing
+# - datetime: For timestamp handling
+# - csv: For CSV file generation
+# - os: For file system operations
