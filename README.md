@@ -8,7 +8,7 @@
 ![Polars](https://img.shields.io/badge/polars-supported-red.svg)
 ![uv](https://img.shields.io/badge/uv-compatible-purple.svg)
 
-A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and converting them to CSV format. This tool provides a dependency-free alternative to ActiLife software for extracting activity data from GT3X files.
+A fast, pure Python library for parsing ActiGraph GT3X accelerometer files and converting them to CSV format. This tool provides a dependency-free alternative to ActiLife software for extracting accelerometer data from GT3X files.
 
 ## ⚡ Key Features
 
